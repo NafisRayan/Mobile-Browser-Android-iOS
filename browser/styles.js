@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1E1E1E', // Dark background
-    padding: 16,
+    padding: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 30,
   },
   textInput: {
     flex: 1,
@@ -60,8 +61,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333', // Dark background for toolbar
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
@@ -153,9 +154,12 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   menuButton: {
-    backgroundColor: '#61dafb', // React Blue for menu button
+    backgroundColor: '#61dafb', // React Blue for the Go button
     padding: width * 0.03,
     borderRadius: 10,
+    alignItems: 'center',
+    marginLeft: 0,
+    marginRight: 10,
   },
   fontButton: {
     backgroundColor: '#61dafb', // React Blue for font button
