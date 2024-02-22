@@ -61,23 +61,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333', // Dark background for toolbar
     paddingVertical: 10,
     paddingHorizontal: 20,
-    // borderTopLeftRadius: 20,
-    // borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
   navigationButton: {
-    backgroundColor: '#61dafb', // React Blue for navigation button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
-  clearButton: {
-    backgroundColor: '#61dafb', // React Blue for clear button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
-  historyButton: {
-    backgroundColor: '#61dafb', // React Blue for history button
+    backgroundColor: '#61dafb', // React Blue for navigation button  #61dafb
     padding: width * 0.03,
     borderRadius: 10,
   },
@@ -126,25 +116,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: height * 0.03,
   },
-  reloadButton: {
+  newTab: {
     backgroundColor: '#61dafb', // React Blue for reload button
     padding: width * 0.03,
     borderRadius: 10,
   },
-  stopButton: {
+  closeTab: {
     backgroundColor: '#FF3B30',
     padding: width * 0.03,
     borderRadius: 10,
   },
-  fontButton: {
-    backgroundColor: '#61dafb', // React Blue for font button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
+
   menu: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column', // Change from 'row' to 'column'
+    justifyContent: 'flex-start', // Align from the top
+    alignItems: 'flex-start', // Align from the left
     backgroundColor: '#61dafb', // React Blue for menu background
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -161,21 +147,53 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     marginRight: 10,
   },
-  fontButton: {
-    backgroundColor: '#61dafb', // React Blue for font button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
-  clearButton: {
-    backgroundColor: '#61dafb', // React Blue for clear button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
-  historyButton: {
-    backgroundColor: '#61dafb', // React Blue for history button
-    padding: width * 0.03,
-    borderRadius: 10,
-  },
+  
+fontButton: {
+  backgroundColor: 'green',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '35%',
+  marginTop: 5,
+},
+
+clearButton: {
+  backgroundColor: 'yellow',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '35%',
+  marginTop: 5,
+
+},
+
+historyButton: {
+  backgroundColor: 'blue',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '35%',
+  marginTop: 5,
+  
+},
+reloadButton: {
+  backgroundColor: 'green',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '35%',
+  marginTop: 5,
+},
+
+stopButton: {
+  backgroundColor: 'red',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '35%',
+  marginTop: 5,
+  marginBottom: 10
+},
   iconText: {
     color: '#FFFFFF',
     textAlign: 'center',
