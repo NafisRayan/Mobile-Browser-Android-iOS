@@ -143,6 +143,16 @@ const App = () => {
         <Icon name="history" size={18} color="black" />
         <Text style={styles.iconText}>History</Text>
       </TouchableOpacity>
+
+	  <TouchableOpacity onPress={loadHistFunction} style={styles.bookmarks}>
+        <Icon name="bookmark" size={18} color="black" />
+        <Text style={styles.iconText}>Bookmarks</Text>
+      </TouchableOpacity>
+
+	  <TouchableOpacity onPress={loadHistFunction} style={styles.addbookmark}>
+        <Icon name="tag" size={18} color="black" />
+        <Text style={styles.iconText}>Add bookmark</Text>
+      </TouchableOpacity>
 	  
 	  <TouchableOpacity onPress={reloadFunction} 
 								style={styles.reloadButton}>
@@ -157,10 +167,6 @@ const App = () => {
 	  
     </>
   )}
-  {/* <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)} style={styles.menuButton}>
-    <Icon name={menuVisible ? "times" : "bars"} size={20} color="black" />
-    <Text style={styles.iconText}>{menuVisible ? "Close" : "Menu"}</Text>
-  </TouchableOpacity> */}
 </View>
 
 
