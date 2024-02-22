@@ -143,6 +143,18 @@ const App = () => {
         <Icon name="history" size={18} color="black" />
         <Text style={styles.iconText}>History</Text>
       </TouchableOpacity>
+	  
+	  <TouchableOpacity onPress={reloadFunction} 
+								style={styles.reloadButton}>
+					<Icon name="refresh" size={18} color="black" />
+					<Text style={styles.iconText}>Reload</Text>
+				</TouchableOpacity>
+				<TouchableOpacity onPress={stopFunction} 
+								style={styles.stopButton}>
+					<Icon name="stop" size={18} color="black" />
+					<Text style={styles.iconText}>Stop</Text>
+				</TouchableOpacity>
+	  
     </>
   )}
   {/* <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)} style={styles.menuButton}>
@@ -179,26 +191,16 @@ const App = () => {
 					<Text style={styles.iconText}>Back</Text>
 				</TouchableOpacity>
 				
-				{/* <TouchableOpacity onPress={histCleatFunction} 
-								style={styles.clearButton}>
-					<Icon name="trash" size={18} color="black" />
-					<Text style={styles.iconText}>Clear</Text>
-				</TouchableOpacity>
-				<TouchableOpacity onPress={loadHistFunction} 
-								style={styles.historyButton}>
-					<Icon name="history" size={18} color="black" />
-					<Text style={styles.iconText}>History</Text>
-				</TouchableOpacity> */}
-				<TouchableOpacity onPress={reloadFunction} 
-								style={styles.reloadButton}>
-					<Icon name="refresh" size={18} color="black" />
-					<Text style={styles.iconText}>Reload</Text>
-				</TouchableOpacity>
 				<TouchableOpacity onPress={stopFunction} 
-								style={styles.stopButton}>
-					<Icon name="stop" size={18} color="black" />
-					<Text style={styles.iconText}>Stop</Text>
+								style={styles.newTab}>
+					<Icon name="plus" size={18} color="black" />
+					<Text style={styles.iconText}>New Tab</Text>
 				</TouchableOpacity>
+		<TouchableOpacity onPress={stopFunction} 
+						style={styles.closeTab}>
+			<Icon name="close" size={18} color="black" />
+			<Text style={styles.iconText}>Close Tab</Text>
+		</TouchableOpacity>
 
 				<TouchableOpacity onPress={nextFunction} 
 								disabled={!next} 
