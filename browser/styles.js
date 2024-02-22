@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: width * 0.05,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'white',
     borderRadius: 15,
   },
   historyItem: {
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#505050',
   },
+
   closeModalButton: {
     backgroundColor: '#FF3B30',
     padding: width * 0.03,
@@ -149,20 +150,20 @@ const styles = StyleSheet.create({
   },
   
 fontButton: {
-  backgroundColor: 'green',
+  backgroundColor: 'orange',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
-  width: '35%',
+  width: '100%',
   marginTop: 5,
 },
 
 clearButton: {
-  backgroundColor: 'yellow',
+  backgroundColor: 'pink',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
-  width: '35%',
+  width: '100%',
   marginTop: 5,
 
 },
@@ -172,16 +173,36 @@ historyButton: {
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
-  width: '35%',
+  width: '100%',
   marginTop: 5,
   
 },
-reloadButton: {
+
+bookmarks: {
   backgroundColor: 'green',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
-  width: '35%',
+  width: '100%',
+  marginTop: 5,
+},
+
+addbookmark: {
+  backgroundColor: 'green',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '100%',
+  marginTop: 5,
+},
+
+
+reloadButton: {
+  backgroundColor: 'orange',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '100%',
   marginTop: 5,
 },
 
@@ -190,7 +211,7 @@ stopButton: {
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
-  width: '35%',
+  width: '100%',
   marginTop: 5,
   marginBottom: 10
 },
