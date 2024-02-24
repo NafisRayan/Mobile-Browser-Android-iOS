@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333', // Dark background for toolbar
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },

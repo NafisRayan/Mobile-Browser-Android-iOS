@@ -13,7 +13,7 @@ import { AsyncStorage } from 'react-native';
 
 const App = () => {
 	const [url, setUrl] = useState(
-'https://ecosia.org/');
+'https://google.com/');
 	const [menuVisible, setMenuVisible] = useState(false);
 	const [prev, setPrev] = useState(false);
 	const [next, setNext] = useState(false);
@@ -36,6 +36,46 @@ const addBookmark = (url) => {
 	setBookmarks((prevBookmarks) => prevBookmarks.filter((bookmark) => bookmark !== url));
   };
   
+  const [tabs, setTabs] = useState([
+	{ id: 1, url: 'https://google.com' }, // Initial tab
+  ]);
+  const [activeTab, setActiveTab] = useState(1);
+  
+  const addTab = () => {
+	const newTabId = tabs.length + 1;
+	const newTabs = [...tabs, { id: newTabId, url: '' }]; // Adding a new tab with an empty URL
+	setTabs(newTabs);
+	setActiveTab(newTabId); // Set the new tab as the active tab
+  };
+  
+  const removeTab = (tabId) => {
+	const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
+	setTabs(updatedTabs);
+  
+	if (activeTab === tabId) {
+	  // If the closed tab was active, switch to the last tab
+	  setActiveTab(updatedTabs[updatedTabs.length - 1].id);
+	}
+  };
+  
+  const switchTab = (tabId) => {
+	setActiveTab(tabId);
+  };
+  
+  const updateTabUrl = (tabId, newUrl) => {
+	const updatedTabs = tabs.map((tab) =>
+	  tab.id === tabId ? { ...tab, url: newUrl } : tab
+	);
+	setTabs(updatedTabs);
+  };
+  
+  const openInActiveTab = () => {
+	const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+	const activeTabUrl = tabs[activeTabIndex].url;
+	if (activeTabUrl !== url) {
+	  updateTabUrl(activeTab, url);
+	}
+  };
   
  
   
@@ -112,7 +152,7 @@ const addBookmark = (url) => {
 				setUrl(`https://${inputTrimmed}`);
 			} else {
 				const searchQuery = 
-`https://www.ecosia.org/search?method=index&q=${encodeURIComponent(inputTrimmed)}`;
+`https://www.google.com/search?method=index&q=${encodeURIComponent(inputTrimmed)}`;
 				setUrl(searchQuery);
 			}
 		}
@@ -229,9 +269,26 @@ const addBookmark = (url) => {
 />
 
 
-
+<View>
+{tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.id}
+            onPress={() => switchTab(tab.id)}
+            style={tab.id === activeTab ? styles.newTab : styles.newTab}>
+            <Text>{tab.url || 'New Tab'}</Text>
+            <Icon
+              name="close"
+              size={18}
+              color="#1DA1F2"
+              onPress={() => removeTab(tab.id)}
+            />
+          </TouchableOpacity>
+        ))}
+</View>
 
 			<View style={styles.toolbar}>
+				
+
 				<TouchableOpacity onPress={prevFunction} 
 								disabled={!prev} 
 								style={styles.navigationButton}>
@@ -239,13 +296,15 @@ const addBookmark = (url) => {
 					<Text style={styles.iconText}>Back</Text>
 				</TouchableOpacity>
 				
-				<TouchableOpacity onPress={() => setUrl('https://ecosia.org')} style={styles.home}>
+				<TouchableOpacity onPress={() => setUrl('https://google.com')} style={styles.home}>
 					<Icon name="home" size={18} color="#1DA1F2" />
 					<Text style={styles.iconText}>Home</Text>
 				</TouchableOpacity>
 
 
-				<TouchableOpacity onPress={stopFunction} 
+
+
+				<TouchableOpacity onPress={addTab} 
 								style={styles.newTab}>
 					<Icon name="window-restore" size={18} color="#1DA1F2" />
 					<Text style={styles.iconText}>New Tab</Text>
