@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: width * 0.08,
-    color: '#61dafb', // React Blue for the header
+    color: 'black', // React Blue for the header
     fontWeight: 'bold',
   },
   subHeaderText: {
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     height: height * 0.06,
-    borderColor: '#505050', // Darker border color
+    borderColor: '#1DA1F2', // Darker border color
     borderWidth: 1,
     borderRadius: 10,
     paddingLeft: 16,
@@ -43,14 +43,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333', // Dark background for text input
   },
   goButton: {
-    backgroundColor: '#61dafb', // React Blue for the Go button
+    backgroundColor: 'black', // React Blue for the Go button
     padding: width * 0.03,
     borderRadius: 10,
     alignItems: 'center',
     marginLeft: 10,
   },
   goButtonText: {
-    color: '#FFFFFF',
+    color: '#1DA1F2',
     fontSize: width * 0.04,
     fontWeight: 'bold',
   },
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   navigationButton: {
-    backgroundColor: '#61dafb', // React Blue for navigation button  #61dafb
+    backgroundColor: 'black', // React Blue for navigation button  black
     padding: width * 0.03,
     borderRadius: 10,
   },
@@ -117,8 +117,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: height * 0.03,
   },
+
+  home: {
+    backgroundColor: 'black', // React Blue for reload button
+    padding: width * 0.03,
+    borderRadius: 10,
+  },
+
   newTab: {
-    backgroundColor: '#61dafb', // React Blue for reload button
+    backgroundColor: 'black', // React Blue for reload button
     padding: width * 0.03,
     borderRadius: 10,
   },
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column', // Change from 'row' to 'column'
     justifyContent: 'flex-start', // Align from the top
     alignItems: 'flex-start', // Align from the left
-    backgroundColor: '#61dafb', // React Blue for menu background
+    backgroundColor: 'black', // React Blue for menu background
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderTopLeftRadius: 20,
@@ -141,7 +148,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   menuButton: {
-    backgroundColor: '#61dafb', // React Blue for the Go button
+    backgroundColor: 'black', // React Blue for the Go button
     padding: width * 0.03,
     borderRadius: 10,
     alignItems: 'center',
@@ -150,7 +157,7 @@ const styles = StyleSheet.create({
   },
   
 fontButton: {
-  backgroundColor: 'orange',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -159,7 +166,7 @@ fontButton: {
 },
 
 clearButton: {
-  backgroundColor: 'pink',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -169,7 +176,7 @@ clearButton: {
 },
 
 historyButton: {
-  backgroundColor: 'blue',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -179,7 +186,7 @@ historyButton: {
 },
 
 bookmarks: {
-  backgroundColor: 'green',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -188,7 +195,7 @@ bookmarks: {
 },
 
 addbookmark: {
-  backgroundColor: 'green',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -198,7 +205,16 @@ addbookmark: {
 
 
 reloadButton: {
-  backgroundColor: 'orange',
+  backgroundColor: 'black',
+  padding: width * 0.03,
+  borderRadius: 100,
+  height: 50,
+  width: '100%',
+  marginTop: 5,
+},
+
+profile: {
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
@@ -207,7 +223,7 @@ reloadButton: {
 },
 
 stopButton: {
-  backgroundColor: 'red',
+  backgroundColor: 'black',
   padding: width * 0.03,
   borderRadius: 100,
   height: 50,
