@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import {
   View,
+  Button,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,9 +17,11 @@ import HistoryModal from "./HistoryModal";
 import BookmarkModal from "./BookmarkModal";
 import styles from "./styles";
 import { AsyncStorage } from "react-native";
+import MyPage from "./MyPage";
 
 const App = () => {
-  const [url, setUrl] = useState("https://nafisrayan.github.io/amarAI/");
+  const [showMyPage, setShowMyPage] = useState(true);
+  const [url, setUrl] = useState("https://google.com/"); // State for the WebView URL
   const [menuVisible, setMenuVisible] = useState(false);
   const [prev, setPrev] = useState(false);
   const [next, setNext] = useState(false);
@@ -31,6 +34,11 @@ const App = () => {
   const [zoom, setZoom] = useState(false);
   const [bookmarkShow, setBookmarkShow] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
+
+  // Function to toggle between MyPage and WebView
+  const togglePage = () => {
+    setShowMyPage(!showMyPage);
+  };
 
   // Updated addBookmark function
   const addBookmark = (url) => {
@@ -264,6 +272,16 @@ const App = () => {
         )}
       </View>
 
+      <View style={{ flex: 1 }}>
+        {showMyPage ? (
+          <MyPage />
+        ) : (
+          <WebViewComponent url={url} /> // Assuming WebViewComponent accepts a url prop
+        )}
+        {/* Add a button or some UI element to toggle between MyPage and WebView */}
+        <Button title="Toggle Page" onPress={togglePage} />
+      </View>
+
       <WebViewComponent
         url={url}
         prev={prev}
@@ -322,7 +340,7 @@ const App = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => setUrl("https://nafisrayan.github.io/amarAI/")}
+          onPress={() => setUrl("https://google.com")}
           style={styles.home}
         >
           <Icon name="home" size={18} color="#1DA1F2" />

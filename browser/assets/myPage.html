@@ -1,0 +1,145 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Search Page</title>
+    <style>
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          margin: 0;
+          background-image: url('https://wallpaperaccess.com/full/4167709.gif');
+          background-size: cover;
+          color: #fff;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .center-container {
+          text-align: center;
+        }
+
+        .clock {
+          font-size: 64px;
+          margin-bottom: 20px;
+        }
+
+        .search-container {
+          text-align: center;
+        }
+
+        .search-bar {
+          width: 300px;
+          padding: 15px;
+          font-size: 18px;
+          border: none;
+          border-radius: 25px;
+          background-color: rgba(26, 26, 26, 0.8);
+          color: #fff;
+        }
+
+        .search-button {
+          padding: 15px 30px;
+          font-size: 18px;
+          background-color: #ff3852;
+          color: #fff;
+          border: none;
+          border-radius: 25px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+          background-color: #001f3f;
+        }
+
+        /* New styles for the result container */
+        .result-container {
+          background-color: #1a1a1a; /* Dark background color for results */
+          padding: 20px;
+          border-radius: 10px;
+          margin-top: 20px; /* Adjust margin as needed */
+        }
+
+        .result-container h2 {
+          color: #ff3852; /* Red color for result header */
+        }
+    </style>
+</head>
+<body>
+    <div class="center-container">
+        <div id="clock" class="clock"></div>
+        <div class="search-container">
+            <form id="search-form" action="/search" method="GET">
+                <input type="text" id="user-input" class="search-bar" name="query" placeholder="Enter your search...">
+                <button type="submit" class="search-button">Search</button>
+            </form>
+            <div id="search-results"></div>
+        </div>
+    </div>
+    <script>// static/script.js
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'pm' : 'am';
+        
+            const formattedHours = hours % 12 || 12;
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        
+            const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        
+            document.getElementById('clock').textContent = timeString;
+        }
+        
+        // Update the clock every second
+        setInterval(updateClock, 1000);
+        
+        // Initial update
+        updateClock();
+        </script>
+    <script>
+        async function query(data) {
+            const response = await fetch(
+                "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1",
+                {
+                    headers: { 
+                        Authorization: "Bearer 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", // Replace with your actual API key
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(data),
+                }
+            );
+            if (!response.ok) {
+                console.error('Server response error:', response.status, response.statusText);
+                return;
+            }
+            const result = await response.json();
+            return result;
+        }
+
+        document.getElementById('search-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent the form from submitting normally
+            const userInput = document.getElementById('user-input').value;
+            if (userInput) {
+                const searchResults = document.getElementById('search-results');
+                searchResults.innerHTML = ''; // Clear previous results
+
+                const botResponse = await query({"inputs": userInput});
+                console.log("API Response:", botResponse); // Log the entire API response
+
+                const botMessageText = botResponse[0].generated_text;
+                const botMessage = document.createElement('p');
+                botMessage.textContent = `Bot: ${botMessageText}`;
+                searchResults.appendChild(botMessage);
+
+                document.getElementById('user-input').value = '';
+            }
+        });
+    </script>
+</body>
+</html>
