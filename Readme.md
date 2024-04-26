@@ -1,6 +1,8 @@
-The project is a mobile browser application developed using React Native. It's designed to provide users with a customized browsing experience on their mobile devices. Here's a breakdown of its functionalities and features:
+# Mobile Browser Application
 
-### Main Functionalities:
+This project is a mobile browser application developed using React Native, designed to provide users with a customized browsing experience on their mobile devices. The application incorporates various features to enhance user interaction and customization.
+
+## Main Functionalities
 
 1. **Web Content Display**: The core functionality of the application is to display web content within the app. This is achieved using the `WebViewComponent`, which is a React Native component that renders web content.
 
@@ -18,16 +20,14 @@ The project is a mobile browser application developed using React Native. It's d
 
 8. **Zoom Control**: The application supports pinch-to-zoom functionality for the WebView content. This is implemented using the `PanResponder` from React Native to detect pinch gestures and adjust the scale of the WebView content accordingly.
 
-<!-- 9. **Tab Management**: The application includes a basic tab management system, allowing users to open multiple tabs and switch between them. Each tab maintains its own URL and browsing history. -->
-
-### Technologies Used:
+## Technologies Used
 
 - **React Native**: The primary framework used for building the mobile application.
 - **Expo**: A set of tools and services built around React Native to help in the development process.
 - **React Native Vector Icons**: Used for displaying icons in the application.
 - **React Native WebView**: A component for displaying web content within the app.
 
-### Codebase Organization:
+## Codebase Organization
 
 The project is organized into several components and files, each responsible for a specific functionality or part of the UI. Key components include:
 
@@ -38,8 +38,26 @@ The project is organized into several components and files, each responsible for
 - `Profile.js`: Component for displaying user profile information.
 - `styles.js`: File containing styles for components.
 
-### Development Environment:
+## Getting Started
 
-The project is developed using Visual Studio Code, a popular code editor, and is managed as a git repository. It's set up to run on both Android and iOS platforms, with the ability to also run on the web using React Native Web.
+To get started with the project, clone the repository and install the dependencies:
 
-This project aims to provide a comprehensive mobile browsing experience, incorporating various features to enhance user interaction and customization.
+```bash
+git clone <repository-url>
+cd <project-directory>
+npm install
+```
+
+To run the application on an Android or iOS device, use the following commands:
+
+```bash
+# For Android
+expo start --android
+
+# For iOS
+expo start --ios
+```
+
+## Contributing
+
+Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) before getting started.
