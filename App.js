@@ -17,6 +17,8 @@ import BookmarkModal from "./BookmarkModal";
 import styles from "./styles";
 import { AsyncStorage } from "react-native";
 
+import Profile from "./Profile"; // Adjust the path according to your file structure
+
 const App = () => {
   const [url, setUrl] = useState("https://nafisrayan.github.io/amarAI/");
   const [menuVisible, setMenuVisible] = useState(false);
@@ -34,7 +36,9 @@ const App = () => {
 
   // Updated addBookmark function
   const addBookmark = (url) => {
-    setBookmarks((prevBookmarks) => [...prevBookmarks, url]);
+    setBookmarks((prevBookmarks) => {
+      return [...prevBookmarks, url];
+    });
   };
 
   const removeBookmark = (url) => {
@@ -172,6 +176,11 @@ const App = () => {
   const loadBookmarkFunction = () => {
     setBookmarkShow(true); // This will show the bookmark modal when the "Bookmarks" button is tapped
   };
+  const [profileVisible, setProfileVisible] = useState(false);
+
+  const loadProfile = () => {
+    setProfileVisible(!profileVisible);
+  };
 
   return (
     <View style={styles.container}>
@@ -202,14 +211,11 @@ const App = () => {
       <View style={styles.menue}>
         {menuVisible && (
           <>
-            <TouchableOpacity
-              onPress={loadBookmarkFunction}
-              style={styles.profile}
-            >
+            <TouchableOpacity onPress={loadProfile} style={styles.profile}>
               <Icon name="user-circle-o" size={18} color="#1DA1F2" />
               <Text style={styles.iconText}>Profile</Text>
             </TouchableOpacity>
-
+            {profileVisible && <Profile />}
             <TouchableOpacity
               onPress={increaseFontSize}
               style={styles.fontButton}
