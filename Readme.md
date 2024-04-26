@@ -1,4 +1,4 @@
-The project you're working on is a mobile browser application developed using React Native. It's designed to provide users with a customized browsing experience on their mobile devices. Here's a breakdown of its functionalities and features:
+The project is a mobile browser application developed using React Native. It's designed to provide users with a customized browsing experience on their mobile devices. Here's a breakdown of its functionalities and features:
 
 ### Main Functionalities:
 
