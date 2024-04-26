@@ -1,5 +1,6 @@
 // App.js
-import React, { useState, useRef } from "react";
+// import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,7 +16,7 @@ import WebViewComponent from "./WebViewComponent";
 import HistoryModal from "./HistoryModal";
 import BookmarkModal from "./BookmarkModal";
 import styles from "./styles";
-import { AsyncStorage } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Profile from "./Profile"; // Adjust the path according to your file structure
 
@@ -34,17 +35,42 @@ const App = () => {
   const [bookmarkShow, setBookmarkShow] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const historyString = await AsyncStorage.getItem("history");
+        const bookmarksString = await AsyncStorage.getItem("bookmarks");
+        if (historyString !== null) {
+          setHistory(JSON.parse(historyString));
+        }
+        if (bookmarksString !== null) {
+          setBookmarks(JSON.parse(bookmarksString));
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage", error);
+      }
+    };
+
+    loadData();
+  }, []);
+
   // Updated addBookmark function
   const addBookmark = (url) => {
     setBookmarks((prevBookmarks) => {
-      return [...prevBookmarks, url];
+      const updatedBookmarks = [...prevBookmarks, url];
+      AsyncStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+      return updatedBookmarks;
     });
   };
 
   const removeBookmark = (url) => {
-    setBookmarks((prevBookmarks) =>
-      prevBookmarks.filter((bookmark) => bookmark !== url)
-    );
+    setBookmarks((prevBookmarks) => {
+      const updatedBookmarks = prevBookmarks.filter(
+        (bookmark) => bookmark !== url
+      );
+      AsyncStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+      return updatedBookmarks;
+    });
   };
 
   const [tabs, setTabs] = useState([
@@ -113,7 +139,11 @@ const App = () => {
   const navStateFunction = (navState) => {
     setPrev(navState.canGoBack);
     setNext(navState.canGoForward);
-    setHistory((prevHistory) => [navState.url, ...prevHistory]);
+    setHistory((prevHistory) => {
+      const updatedHistory = [navState.url, ...prevHistory];
+      AsyncStorage.setItem("history", JSON.stringify(updatedHistory));
+      return updatedHistory;
+    });
   };
   const prevFunction = () => {
     if (prev) {
@@ -167,6 +197,7 @@ const App = () => {
   };
   const histCleatFunction = () => {
     setHistory([]);
+    AsyncStorage.setItem("history", JSON.stringify([]));
     Alert.alert("History Cleared", "Your browsing history has been cleared.");
   };
   const loadHistFunction = () => {
