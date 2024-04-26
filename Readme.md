@@ -40,12 +40,13 @@ The project is organized into several components and files, each responsible for
 
 ## Getting Started
 
-To get started with the project, clone the repository and install the dependencies:
+To get started with the project, clone the repository, install the dependencies and start:
 
 ```bash
 git clone <repository-url>
 cd <project-directory>
-npm install
+npm i
+npm start
 ```
 
 To run the application on an Android or iOS device, use the following commands:
