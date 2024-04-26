@@ -1,1 +1,3 @@
-node_modules/
+.expo/metro/externals/assert/index.js
+/.expo
+/node_modules
