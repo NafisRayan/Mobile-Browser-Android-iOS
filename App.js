@@ -1,5 +1,5 @@
 // App.js
-// import React, { useState, useRef } from "react";
+
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -39,7 +39,9 @@ const App = () => {
     const loadData = async () => {
       try {
         const historyString = await AsyncStorage.getItem("history");
+        console.log("🚀 ~ loadData ~ historyString:", historyString);
         const bookmarksString = await AsyncStorage.getItem("bookmarks");
+        console.log("🚀 ~ loadData ~ bookmarksString:", bookmarksString);
         if (historyString !== null) {
           setHistory(JSON.parse(historyString));
         }
@@ -73,46 +75,46 @@ const App = () => {
     });
   };
 
-  const [tabs, setTabs] = useState([
-    { id: 1, url: "https://google.com" }, // Initial tab
-  ]);
-  const [activeTab, setActiveTab] = useState(1);
+  // const [tabs, setTabs] = useState([
+  //   { id: 1, url: "https://google.com" }, // Initial tab
+  // ]);
+  // const [activeTab, setActiveTab] = useState(1);
 
-  const addTab = () => {
-    const newTabId = tabs.length + 1;
-    const newTabs = [...tabs, { id: newTabId, url: "" }]; // Adding a new tab with an empty URL
-    setTabs(newTabs);
-    setActiveTab(newTabId); // Set the new tab as the active tab
-  };
+  // const addTab = () => {
+  //   const newTabId = tabs.length + 1;
+  //   const newTabs = [...tabs, { id: newTabId, url: "" }]; // Adding a new tab with an empty URL
+  //   setTabs(newTabs);
+  //   setActiveTab(newTabId); // Set the new tab as the active tab
+  // };
 
-  const removeTab = (tabId) => {
-    const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
-    setTabs(updatedTabs);
+  // const removeTab = (tabId) => {
+  //   const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
+  //   setTabs(updatedTabs);
 
-    if (activeTab === tabId) {
-      // If the closed tab was active, switch to the last tab
-      setActiveTab(updatedTabs[updatedTabs.length - 1].id);
-    }
-  };
+  //   if (activeTab === tabId) {
+  //     // If the closed tab was active, switch to the last tab
+  //     setActiveTab(updatedTabs[updatedTabs.length - 1].id);
+  //   }
+  // };
 
-  const switchTab = (tabId) => {
-    setActiveTab(tabId);
-  };
+  // const switchTab = (tabId) => {
+  //   setActiveTab(tabId);
+  // };
 
-  const updateTabUrl = (tabId, newUrl) => {
-    const updatedTabs = tabs.map((tab) =>
-      tab.id === tabId ? { ...tab, url: newUrl } : tab
-    );
-    setTabs(updatedTabs);
-  };
+  // const updateTabUrl = (tabId, newUrl) => {
+  //   const updatedTabs = tabs.map((tab) =>
+  //     tab.id === tabId ? { ...tab, url: newUrl } : tab
+  //   );
+  //   setTabs(updatedTabs);
+  // };
 
-  const openInActiveTab = () => {
-    const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
-    const activeTabUrl = tabs[activeTabIndex].url;
-    if (activeTabUrl !== url) {
-      updateTabUrl(activeTab, url);
-    }
-  };
+  // const openInActiveTab = () => {
+  //   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  //   const activeTabUrl = tabs[activeTabIndex].url;
+  //   if (activeTabUrl !== url) {
+  //     updateTabUrl(activeTab, url);
+  //   }
+  // };
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) => {
