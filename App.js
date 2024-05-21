@@ -1,5 +1,6 @@
 // App.js
-import React, { useState, useRef } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,7 +16,9 @@ import WebViewComponent from "./WebViewComponent";
 import HistoryModal from "./HistoryModal";
 import BookmarkModal from "./BookmarkModal";
 import styles from "./styles";
-import { AsyncStorage } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import Profile from "./Profile"; // Adjust the path according to your file structure
 
 const App = () => {
   const [url, setUrl] = useState("https://nafisrayan.github.io/amarAI/");
@@ -32,57 +35,86 @@ const App = () => {
   const [bookmarkShow, setBookmarkShow] = useState(false);
   const [bookmarks, setBookmarks] = useState([]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const historyString = await AsyncStorage.getItem("history");
+        console.log("🚀 ~ loadData ~ historyString:", historyString);
+        const bookmarksString = await AsyncStorage.getItem("bookmarks");
+        console.log("🚀 ~ loadData ~ bookmarksString:", bookmarksString);
+        if (historyString !== null) {
+          setHistory(JSON.parse(historyString));
+        }
+        if (bookmarksString !== null) {
+          setBookmarks(JSON.parse(bookmarksString));
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage", error);
+      }
+    };
+
+    loadData();
+  }, []);
+
   // Updated addBookmark function
   const addBookmark = (url) => {
-    setBookmarks((prevBookmarks) => [...prevBookmarks, url]);
+    setBookmarks((prevBookmarks) => {
+      const updatedBookmarks = [...prevBookmarks, url];
+      AsyncStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+      return updatedBookmarks;
+    });
   };
 
   const removeBookmark = (url) => {
-    setBookmarks((prevBookmarks) =>
-      prevBookmarks.filter((bookmark) => bookmark !== url)
-    );
+    setBookmarks((prevBookmarks) => {
+      const updatedBookmarks = prevBookmarks.filter(
+        (bookmark) => bookmark !== url
+      );
+      AsyncStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+      return updatedBookmarks;
+    });
   };
 
-  const [tabs, setTabs] = useState([
-    { id: 1, url: "https://google.com" }, // Initial tab
-  ]);
-  const [activeTab, setActiveTab] = useState(1);
+  // const [tabs, setTabs] = useState([
+  //   { id: 1, url: "https://google.com" }, // Initial tab
+  // ]);
+  // const [activeTab, setActiveTab] = useState(1);
 
-  const addTab = () => {
-    const newTabId = tabs.length + 1;
-    const newTabs = [...tabs, { id: newTabId, url: "" }]; // Adding a new tab with an empty URL
-    setTabs(newTabs);
-    setActiveTab(newTabId); // Set the new tab as the active tab
-  };
+  // const addTab = () => {
+  //   const newTabId = tabs.length + 1;
+  //   const newTabs = [...tabs, { id: newTabId, url: "" }]; // Adding a new tab with an empty URL
+  //   setTabs(newTabs);
+  //   setActiveTab(newTabId); // Set the new tab as the active tab
+  // };
 
-  const removeTab = (tabId) => {
-    const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
-    setTabs(updatedTabs);
+  // const removeTab = (tabId) => {
+  //   const updatedTabs = tabs.filter((tab) => tab.id !== tabId);
+  //   setTabs(updatedTabs);
 
-    if (activeTab === tabId) {
-      // If the closed tab was active, switch to the last tab
-      setActiveTab(updatedTabs[updatedTabs.length - 1].id);
-    }
-  };
+  //   if (activeTab === tabId) {
+  //     // If the closed tab was active, switch to the last tab
+  //     setActiveTab(updatedTabs[updatedTabs.length - 1].id);
+  //   }
+  // };
 
-  const switchTab = (tabId) => {
-    setActiveTab(tabId);
-  };
+  // const switchTab = (tabId) => {
+  //   setActiveTab(tabId);
+  // };
 
-  const updateTabUrl = (tabId, newUrl) => {
-    const updatedTabs = tabs.map((tab) =>
-      tab.id === tabId ? { ...tab, url: newUrl } : tab
-    );
-    setTabs(updatedTabs);
-  };
+  // const updateTabUrl = (tabId, newUrl) => {
+  //   const updatedTabs = tabs.map((tab) =>
+  //     tab.id === tabId ? { ...tab, url: newUrl } : tab
+  //   );
+  //   setTabs(updatedTabs);
+  // };
 
-  const openInActiveTab = () => {
-    const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
-    const activeTabUrl = tabs[activeTabIndex].url;
-    if (activeTabUrl !== url) {
-      updateTabUrl(activeTab, url);
-    }
-  };
+  // const openInActiveTab = () => {
+  //   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  //   const activeTabUrl = tabs[activeTabIndex].url;
+  //   if (activeTabUrl !== url) {
+  //     updateTabUrl(activeTab, url);
+  //   }
+  // };
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -109,7 +141,11 @@ const App = () => {
   const navStateFunction = (navState) => {
     setPrev(navState.canGoBack);
     setNext(navState.canGoForward);
-    setHistory((prevHistory) => [navState.url, ...prevHistory]);
+    setHistory((prevHistory) => {
+      const updatedHistory = [navState.url, ...prevHistory];
+      AsyncStorage.setItem("history", JSON.stringify(updatedHistory));
+      return updatedHistory;
+    });
   };
   const prevFunction = () => {
     if (prev) {
@@ -163,6 +199,7 @@ const App = () => {
   };
   const histCleatFunction = () => {
     setHistory([]);
+    AsyncStorage.setItem("history", JSON.stringify([]));
     Alert.alert("History Cleared", "Your browsing history has been cleared.");
   };
   const loadHistFunction = () => {
@@ -171,6 +208,11 @@ const App = () => {
 
   const loadBookmarkFunction = () => {
     setBookmarkShow(true); // This will show the bookmark modal when the "Bookmarks" button is tapped
+  };
+  const [profileVisible, setProfileVisible] = useState(false);
+
+  const loadProfile = () => {
+    setProfileVisible(!profileVisible);
   };
 
   return (
@@ -202,14 +244,11 @@ const App = () => {
       <View style={styles.menue}>
         {menuVisible && (
           <>
-            <TouchableOpacity
-              onPress={loadBookmarkFunction}
-              style={styles.profile}
-            >
+            <TouchableOpacity onPress={loadProfile} style={styles.profile}>
               <Icon name="user-circle-o" size={18} color="#1DA1F2" />
               <Text style={styles.iconText}>Profile</Text>
             </TouchableOpacity>
-
+            {profileVisible && <Profile />}
             <TouchableOpacity
               onPress={increaseFontSize}
               style={styles.fontButton}
