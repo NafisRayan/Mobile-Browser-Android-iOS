@@ -2,6 +2,12 @@
 
 This project is a mobile browser application developed using React Native, designed to provide users with a customized browsing experience on their mobile devices. The application incorporates various features to enhance user interaction and customization.
 
+## Screenshots  
+
+Here are some screenshots of the **Browser** app showcasing its key features and design:  
+
+<img src="/assets/reactBrowser.png" alt="GoFlix Home Screen" width="250" />  
+
 ## Main Functionalities
 
 1. **Web Content Display**: The core functionality of the application is to display web content within the app. This is achieved using the `WebViewComponent`, which is a React Native component that renders web content.
