@@ -1,5 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
-import { theme } from '@/styles/theme';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, imported commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import {
   Home,
   Bookmark, // Changed from Layers
@@ -29,6 +30,8 @@ export function ChromeBottomBar({
 }: ChromeBottomBarProps) {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const { isDarkMode } = useTheme(); // Get theme status
+  const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
   const navigateToTabs = () => {
     router.navigate('/tabs');
@@ -46,7 +49,10 @@ export function ChromeBottomBar({
     <View
       style={[
         styles.container,
-        isPrivateMode && styles.privateContainer,
+        { 
+          backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor,
+          borderTopColor: isPrivateMode ? (isDarkMode ? staticTheme.colors.neutral[300] : staticTheme.colors.neutral[200]) : dynamicStyles.button.secondary.borderColor, // Adjust private border
+        },
         { height: containerHeight },
         isTablet && styles.tabletContainer,
         isDesktop && styles.desktopContainer
@@ -57,7 +63,7 @@ export function ChromeBottomBar({
         style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
         onPress={navigateHome}
       >
-        <Home size={iconSize} color={theme.colors.neutral[600]} />
+        <Home size={iconSize} color={dynamicStyles.icon.color} />
       </TouchableOpacity>
 
       {/* Bookmarks Button */}
@@ -65,7 +71,7 @@ export function ChromeBottomBar({
         style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
         onPress={onBookmarksPress}
       >
-        <Bookmark size={iconSize} color={theme.colors.neutral[600]} />
+        <Bookmark size={iconSize} color={dynamicStyles.icon.color} />
       </TouchableOpacity>
 
       {/* Search Button */}
@@ -73,7 +79,7 @@ export function ChromeBottomBar({
         style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
         onPress={onSearchPress}
       >
-        <Search size={iconSize} color={theme.colors.neutral[600]} />
+        <Search size={iconSize} color={dynamicStyles.icon.color} />
       </TouchableOpacity>
       
       {/* Tabs Button */}
@@ -81,9 +87,17 @@ export function ChromeBottomBar({
         style={[styles.tabButton, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
         onPress={navigateToTabs}
       >
-        <Layers size={iconSize} color={theme.colors.neutral[600]} />
-        <View style={[styles.tabCountBadge, isTablet && styles.tabletBadge, isDesktop && styles.desktopBadge]}>
-          <Text style={[styles.tabCountText, { fontSize: fontSize * 0.7 }]}>
+        <Layers size={iconSize} color={dynamicStyles.icon.color} />
+        <View style={[
+            styles.tabCountBadge, 
+            { backgroundColor: staticTheme.colors.primary.main }, // Keeping original badge color
+            isTablet && styles.tabletBadge, 
+            isDesktop && styles.desktopBadge
+        ]}>
+          <Text style={[
+              styles.tabCountText, 
+              { color: staticTheme.colors.neutral[900], fontSize: fontSize * 0.7 } // Keeping original badge text color
+          ]}>
             {tabsCount}
           </Text>
         </View>
@@ -96,84 +110,77 @@ export function ChromeBottomBar({
         onLongPress={onLongPressRefresh}
         delayLongPress={500}
       >
-        <RefreshCw size={iconSize} color={theme.colors.neutral[600]} />
+        <RefreshCw size={iconSize} color={dynamicStyles.icon.color} />
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base styles, dynamic ones applied inline
     flexDirection: 'row' as const,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: theme.colors.neutral[50], // Dark blue
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: staticTheme.spacing.sm,
+    paddingHorizontal: staticTheme.spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.neutral[200],
   } as ViewStyle,
   tabletContainer: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    paddingHorizontal: staticTheme.spacing.lg,
+    paddingVertical: staticTheme.spacing.md,
   } as ViewStyle,
   desktopContainer: {
-    paddingHorizontal: theme.spacing['2xl'],
-    paddingVertical: theme.spacing.md,
+    paddingHorizontal: staticTheme.spacing['2xl'],
+    paddingVertical: staticTheme.spacing.md,
     justifyContent: 'center',
   } as ViewStyle,
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100], // Slightly lighter dark blue
-    borderTopColor: theme.colors.neutral[300],
-  } as ViewStyle,
+  // privateContainer removed, handled inline
   button: {
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.full,
+    padding: staticTheme.spacing.md,
+    borderRadius: staticTheme.radius.full,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     backgroundColor: 'transparent',
   } as ViewStyle,
   tabletButton: {
-    padding: theme.spacing.lg,
+    padding: staticTheme.spacing.lg,
   } as ViewStyle,
   desktopButton: {
-    padding: theme.spacing.xl,
+    padding: staticTheme.spacing.xl,
   } as ViewStyle,
   tabButton: {
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.full,
+    padding: staticTheme.spacing.md,
+    borderRadius: staticTheme.radius.full,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     backgroundColor: 'transparent',
     position: 'relative',
   } as ViewStyle,
-  tabCountBadge: {
+  tabCountBadge: { // Base styles, dynamic background and text color applied inline
     position: 'absolute',
-    top: theme.spacing.xs,
-    right: theme.spacing.xs,
-    backgroundColor: theme.colors.primary.dark,
-    borderRadius: theme.radius.full,
+    top: staticTheme.spacing.xs,
+    right: staticTheme.spacing.xs,
+    borderRadius: staticTheme.radius.full,
     minWidth: 20,
     height: 20,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    paddingHorizontal: theme.spacing.xs,
+    paddingHorizontal: staticTheme.spacing.xs,
   } as ViewStyle,
   tabletBadge: {
-    top: theme.spacing.sm,
-    right: theme.spacing.sm,
+    top: staticTheme.spacing.sm,
+    right: staticTheme.spacing.sm,
     minWidth: 22,
     height: 22,
   } as ViewStyle,
   desktopBadge: {
-    top: theme.spacing.md,
-    right: theme.spacing.md,
+    top: staticTheme.spacing.md,
+    right: staticTheme.spacing.md,
     minWidth: 24,
     height: 24,
   } as ViewStyle,
-  tabCountText: {
-    color: theme.colors.neutral[800],
-    fontSize: theme.typography.sizes.xs,
-    fontFamily: theme.typography.families.sansBold,
+  tabCountText: { // Base style, dynamic color applied inline
+    fontSize: staticTheme.typography.sizes.xs, // Base size, overridden inline for badge
+    fontFamily: staticTheme.typography.families.sansBold,
   } as TextStyle,
 });

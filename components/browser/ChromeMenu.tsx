@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal, ScrollView, ViewStyle, TextStyle } from 'react-native';
-import { theme } from '@/styles/theme';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import {
   Plus,
   Bookmark,
@@ -35,6 +36,8 @@ export function ChromeMenu({
 }: ChromeMenuProps) {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize } = useResponsiveSize();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
 
   const navigateToBookmarks = () => {
     onClose();
@@ -67,12 +70,16 @@ export function ChromeMenu({
     onClose();
   };
 
-  const iconColor = isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600];
-  const privateIconColor = theme.colors.primary.light; // Specific color for incognito lock
+  // Updated icon colors based on theme and private mode
+  const baseIconColor = dynamicStyles.icon.color;
+  const themedIconColor = isPrivateMode ? (isDarkMode ? staticTheme.dark.colors.textSecondary : staticTheme.light.colors.textSecondary) : baseIconColor;
+  // For the incognito lock icon, use accent color when private mode is active, otherwise regular icon color
+  const incognitoIconColor = isPrivateMode ? dynamicStyles.iconAccent.color : themedIconColor;
+
 
   const menuItems = [
     {
-      icon: <Plus size={20} color={iconColor} />,
+      icon: <Plus size={20} color={themedIconColor} />,
       label: 'New tab',
       onPress: () => {
         onNewTab();
@@ -80,7 +87,7 @@ export function ChromeMenu({
       }
     },
     {
-      icon: <Lock size={20} color={isPrivateMode ? privateIconColor : iconColor} />,
+      icon: <Lock size={20} color={incognitoIconColor} />,
       label: isPrivateMode ? 'Close Incognito tab' : 'New Incognito tab',
       onPress: () => {
         togglePrivateMode();
@@ -88,22 +95,22 @@ export function ChromeMenu({
       }
     },
     {
-      icon: <History size={20} color={iconColor} />,
+      icon: <History size={20} color={themedIconColor} />,
       label: 'History',
       onPress: navigateToHistory
     },
     {
-      icon: <Download size={20} color={iconColor} />,
+      icon: <Download size={20} color={themedIconColor} />,
       label: 'Downloads',
       onPress: navigateToDownloads
     },
     {
-      icon: <Bookmark size={20} color={iconColor} />,
+      icon: <Bookmark size={20} color={themedIconColor} />,
       label: 'Bookmarks',
       onPress: navigateToBookmarks
     },
     {
-      icon: <RefreshCw size={20} color={iconColor} />,
+      icon: <RefreshCw size={20} color={themedIconColor} />,
       label: 'Refresh',
       onPress: () => {
         onRefresh();
@@ -111,12 +118,12 @@ export function ChromeMenu({
       }
     },
     {
-      icon: <Settings size={20} color={iconColor} />,
+      icon: <Settings size={20} color={themedIconColor} />,
       label: 'Settings',
       onPress: navigateToPrivacy
     },
     {
-      icon: <Info size={20} color={iconColor} />,
+      icon: <Info size={20} color={themedIconColor} />,
       label: 'Help and feedback',
       onPress: navigateToHelp
     }
@@ -140,7 +147,7 @@ export function ChromeMenu({
       <View style={styles.overlay}>
         <View style={[
           styles.menuContainer,
-          isPrivateMode && styles.privateMenuContainer,
+          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }, // Use themed surface
           { width: menuWidth }
         ]}>
           <ScrollView style={styles.menuItems}>
@@ -167,7 +174,7 @@ export function ChromeMenu({
                   </View>
                   <Text style={[
                     styles.menuItemText,
-                    isPrivateMode && styles.privateText,
+                    { color: isPrivateMode ? (isDarkMode ? staticTheme.dark.colors.textSecondary : staticTheme.light.colors.textSecondary) : dynamicStyles.text.primary.color },
                     { fontSize }
                   ]}>
                     {item.label}
@@ -188,9 +195,9 @@ export function ChromeMenu({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  overlay: { // Keeping dark overlay for now, can be themed if needed
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Slightly darker overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', 
     flexDirection: 'column',
   } as ViewStyle,
   closeOverlay: {
@@ -201,21 +208,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: -1,
   },
-  menuContainer: {
-    backgroundColor: theme.colors.neutral[100], // Dark blue surface
-    width: '100%',
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xl,
-    borderBottomLeftRadius: theme.radius.md,
-    borderBottomRightRadius: theme.radius.md,
-    ...theme.shadows.lg, // Enhanced shadow for popup
+  menuContainer: { // Base styles, dynamic background applied inline
+    width: '100%', // width is dynamic
+    paddingTop: staticTheme.spacing.sm,
+    paddingBottom: staticTheme.spacing.xl,
+    borderBottomLeftRadius: staticTheme.radius.md,
+    borderBottomRightRadius: staticTheme.radius.md,
+    ...staticTheme.shadows.lg, 
   } as ViewStyle,
-  privateMenuContainer: {
-    backgroundColor: theme.colors.neutral[200], // Slightly lighter for private
-  } as ViewStyle,
-  privateText: {
-    color: theme.colors.neutral[700], // Light text for private mode
-  } as TextStyle,
+  // privateMenuContainer removed, handled inline
+  // privateText removed, handled inline
   menuItems: {
     paddingHorizontal: 0,
   },
@@ -247,7 +249,7 @@ const styles = StyleSheet.create({
     marginRight: 40,
   },
   menuItemText: {
-    color: theme.colors.neutral[700], // Light text
-    fontFamily: theme.typography.families.sans,
+    color: staticTheme.colors.neutral[700], // Fallback, color is set dynamically inline
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
 });

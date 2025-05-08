@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { StyleSheet, FlatList, Text, TouchableOpacity, View, StatusBar, TextInput, ViewStyle, TextStyle } from 'react-native';
-import { theme } from '@/styles/theme';
-import { Plus, Search } from 'lucide-react-native'; // Removed ArrowLeft, Lock, Incognito
+import { StyleSheet, FlatList, Text, TouchableOpacity, View, TextInput, ViewStyle, TextStyle } from 'react-native'; // Removed StatusBar
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { Plus, Search } from 'lucide-react-native';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { ChromeTabPreview } from '@/components/browser/ChromeTabPreview';
 import { usePrivacyContext } from '@/context/PrivacyContext';
@@ -24,6 +25,8 @@ export default function TabsScreen() {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
 
   const goBack = () => {
     router.back();
@@ -43,17 +46,17 @@ export default function TabsScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, isPrivateMode && styles.privateContainer]}
+      style={[
+        styles.container, 
+        { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+      ]}
       edges={['left', 'right']}
     >
       {/* StatusBar is handled by RootLayout */}
-      <StatusBar
-        backgroundColor={isPrivateMode ? theme.colors.neutral[100] : theme.colors.neutral[50]}
-        barStyle="light-content" // Always light for dark theme
-      />
 
       <View style={[
         styles.header,
+        { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
         responsivePadding,
         safeAreaStyles.safeAreaTop
       ]}>
@@ -66,14 +69,13 @@ export default function TabsScreen() {
               isDesktop && styles.desktopButton
             ]}
           >
-            <Plus size={iconSize} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+            <Plus size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
 
-          <View style={styles.tabCounter}>
+          <View style={[styles.tabCounter, { backgroundColor: dynamicStyles.input.base.backgroundColor }]}>
             <Text style={[
               styles.tabCounterText,
-              isPrivateMode && styles.privateText,
-              { fontSize: getFontSize(16) }
+              { color: dynamicStyles.text.primary.color, fontSize: getFontSize(16) }
             ]}>
               {tabs.length}
             </Text>
@@ -88,7 +90,7 @@ export default function TabsScreen() {
           >
             <Text style={[
               styles.gridIcon,
-              isPrivateMode && styles.privateText
+              { color: dynamicStyles.icon.color }
             ]}>
               {/* Using a standard icon might be better, but keeping the character for now */}
               ⊞ 
@@ -96,12 +98,15 @@ export default function TabsScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.searchContainer, isPrivateMode && styles.privateSearchContainer]}>
-          <Search size={20} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+        <View style={[
+          styles.searchContainer, 
+          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
+        ]}>
+          <Search size={20} color={dynamicStyles.text.secondary.color} />
           <TextInput
-            style={[styles.searchInput, isPrivateMode && styles.privateSearchInput]}
+            style={[styles.searchInput, { color: dynamicStyles.text.primary.color }]}
             placeholder="Search your tabs"
-            placeholderTextColor={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
           />
         </View>
       </View>
@@ -114,15 +119,18 @@ export default function TabsScreen() {
               <TouchableOpacity
                 style={[
                   styles.newTabCard,
-                  isPrivateMode && styles.privateNewTabCard
+                  { 
+                    backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor,
+                    borderColor: dynamicStyles.button.secondary.borderColor 
+                  }
                 ]}
                 onPress={addNewTab}
               >
                 <View style={styles.newTabContent}>
-                  <Plus size={24} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+                  <Plus size={24} color={dynamicStyles.icon.color} />
                   <Text style={[
                     styles.newTabText,
-                    isPrivateMode && styles.privateText
+                    { color: dynamicStyles.text.primary.color }
                   ]}>
                     New tab
                   </Text>
@@ -158,15 +166,12 @@ export default function TabsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base style, background handled inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[50],
-  } as ViewStyle,
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100],
   } as ViewStyle,
   header: {
     marginBottom: 8,
+    borderBottomWidth: 1, // Added border
   },
   headerTop: {
     flexDirection: 'row',
@@ -188,69 +193,48 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
   },
-  tabCounter: {
+  tabCounter: { // Base style, background handled inline
     width: 40,
     height: 40,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.full,
+    borderRadius: staticTheme.radius.full,
   } as ViewStyle,
-  tabCounterText: {
-    fontFamily: theme.typography.families.sansMedium,
-    color: theme.colors.neutral[700],
+  tabCounterText: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
-  gridIcon: {
+  gridIcon: { // Base style, color handled inline
     fontSize: 24,
-    color: theme.colors.neutral[600],
   } as TextStyle,
-  privateText: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
-  searchContainer: {
+  searchContainer: { // Base style, background handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.md,
+    borderRadius: staticTheme.radius.full,
+    paddingHorizontal: staticTheme.spacing.md,
     height: 48,
   } as ViewStyle,
-  privateSearchContainer: {
-    backgroundColor: theme.colors.neutral[200],
-  } as ViewStyle,
-  searchInput: {
+  searchInput: { // Base style, color handled inline
     flex: 1,
     height: 48,
-    paddingHorizontal: theme.spacing.sm,
-    fontFamily: theme.typography.families.sans,
-    color: theme.colors.neutral[700],
+    paddingHorizontal: staticTheme.spacing.sm,
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
-  privateSearchInput: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
-  newTabCard: {
+  newTabCard: { // Base style, background and border handled inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.md,
-    margin: theme.spacing.xs,
+    borderRadius: staticTheme.radius.md,
+    margin: staticTheme.spacing.xs,
     height: 160, // Keep height or make responsive?
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     borderWidth: 1,
-    borderColor: theme.colors.neutral[200],
-  } as ViewStyle,
-  privateNewTabCard: {
-    backgroundColor: theme.colors.neutral[200],
-    borderColor: theme.colors.neutral[300],
   } as ViewStyle,
   newTabContent: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  newTabText: {
-    marginTop: theme.spacing.sm,
-    color: theme.colors.neutral[700],
-    fontFamily: theme.typography.families.sansMedium,
+  newTabText: { // Base style, color handled inline
+    marginTop: staticTheme.spacing.sm,
+    fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
   gridContent: {
     paddingBottom: 24,

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
-import { theme, commonStyles } from '@/styles/theme';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme to staticTheme
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Search, Lock, X, Layers, MoreVertical } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
@@ -30,6 +31,8 @@ export function ChromeAddressBar({
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const { isDarkMode } = useTheme(); // Get theme status
+  const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
   useEffect(() => {
     if (url !== inputValue && !isFocused) {
@@ -82,27 +85,34 @@ export function ChromeAddressBar({
     <View
       style={[
         styles.container,
-        isPrivateMode && styles.privateContainer,
+        { 
+          backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor,
+          borderBottomColor: isPrivateMode ? (isDarkMode ? staticTheme.colors.neutral[300] : staticTheme.colors.neutral[200]) : dynamicStyles.button.secondary.borderColor, // Adjust private border
+        },
         responsivePadding
       ]}
     >
       <View style={styles.addressBarContainer}>
         <View style={[
           styles.inputContainer,
-          isFocused && styles.inputContainerFocused,
-          isPrivateMode && styles.privateInputContainer,
-          isFocused && isPrivateMode && styles.privateInputContainerFocused,
+          { 
+            backgroundColor: isPrivateMode 
+              ? (isFocused ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.privateMode.backgroundColor) // Potentially different focused private bg
+              : (isFocused ? dynamicStyles.input.focused.backgroundColor : dynamicStyles.input.base.backgroundColor),
+            borderColor: isFocused ? dynamicStyles.input.focused.borderColor : dynamicStyles.input.base.borderColor,
+            borderWidth: isFocused ? 1 : (isPrivateMode ? 1 : dynamicStyles.input.base.borderWidth) // Ensure private mode has border
+          },
           isTablet && styles.tabletInputContainer,
           isDesktop && styles.desktopInputContainer
         ]}>
           {isLoading ? (
-            <ActivityIndicator size="small" color={isPrivateMode ? theme.colors.primary.light : theme.colors.primary.main} style={styles.icon} />
+            <ActivityIndicator size="small" color={dynamicStyles.iconAccent.color} style={styles.icon} />
           ) : (
             <>
               {isSecure ? (
-                <Lock size={iconSize} color={isPrivateMode ? theme.colors.primary.light : theme.colors.primary.main} style={styles.icon} />
+                <Lock size={iconSize} color={dynamicStyles.iconAccent.color} style={styles.icon} />
               ) : (
-                <Search size={iconSize} color={theme.colors.neutral[500]} style={styles.icon} />
+                <Search size={iconSize} color={dynamicStyles.text.secondary.color} style={styles.icon} />
               )}
             </>
           )}
@@ -110,7 +120,7 @@ export function ChromeAddressBar({
           <TextInput
             style={[
               styles.input,
-              isPrivateMode && styles.privateInput,
+              { color: isPrivateMode ? dynamicStyles.text.primary.color : dynamicStyles.text.primary.color }, // Ensure private text is also themed
               !isFocused && styles.centeredInput
             ]}
             value={isFocused ? inputValue : displayUrl}
@@ -125,7 +135,7 @@ export function ChromeAddressBar({
               if (onBlur) onBlur();
             }}
             placeholder="Search or type web address"
-            placeholderTextColor={theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
             autoCapitalize="none"
             keyboardType="url"
             returnKeyType="go"
@@ -134,7 +144,7 @@ export function ChromeAddressBar({
 
           {inputValue !== '' && isFocused && (
             <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
-              <X size={iconSize} color={theme.colors.neutral[500]} />
+              <X size={iconSize} color={dynamicStyles.text.secondary.color} />
             </TouchableOpacity>
           )}
         </View>
@@ -147,9 +157,9 @@ export function ChromeAddressBar({
           ]}
           onPress={navigateToTabs}
         >
-          <Layers size={menuIconSize} color={isPrivateMode ? theme.dark.colors.text : theme.colors.neutral[500]} />
-          <View style={styles.tabCountBadge}>
-            <Text style={styles.tabCountText}>{tabsCount}</Text>
+          <Layers size={menuIconSize} color={dynamicStyles.icon.color} />
+          <View style={[styles.tabCountBadge, { backgroundColor: staticTheme.colors.primary.main }]}>
+            <Text style={[styles.tabCountText, { color: staticTheme.colors.neutral[900] }]}>{tabsCount}</Text>
           </View>
         </TouchableOpacity>
 
@@ -161,7 +171,7 @@ export function ChromeAddressBar({
           ]}
           onPress={onMenuPress}
         >
-          <MoreVertical size={menuIconSize} color={isPrivateMode ? theme.dark.colors.text : theme.colors.neutral[500]} />
+          <MoreVertical size={menuIconSize} color={dynamicStyles.icon.color} />
         </TouchableOpacity>
       </View>
     </View>
@@ -169,75 +179,59 @@ export function ChromeAddressBar({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.neutral[50], // Dark blue
+  container: { // Base styles, dynamic ones applied inline
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.neutral[200],
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: staticTheme.spacing.sm,
   } as ViewStyle,
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100], // Slightly lighter dark blue
-    borderBottomColor: theme.colors.neutral[300],
-  } as ViewStyle,
+  // privateContainer removed, handled inline
   addressBarContainer: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    gap: theme.spacing.sm,
+    gap: staticTheme.spacing.sm,
   },
-  inputContainer: {
+  inputContainer: { // Base styles, dynamic ones applied inline
     flex: 1,
     height: 48,
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.lg,
+    borderRadius: staticTheme.radius.full,
+    paddingHorizontal: staticTheme.spacing.lg,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
   },
-  inputContainerFocused: {
-    backgroundColor: theme.colors.neutral[50],
-    ...theme.shadows.md,
-  },
-  privateInputContainer: {
-    backgroundColor: theme.dark.colors.surface,
-  },
-  privateInputContainerFocused: {
-    backgroundColor: theme.dark.colors.background,
-  },
+  // inputContainerFocused removed, handled inline
+  // privateInputContainer removed, handled inline
+  // privateInputContainerFocused removed, handled inline
   tabletInputContainer: {
     height: 52,
-    paddingHorizontal: theme.spacing.xl,
+    paddingHorizontal: staticTheme.spacing.xl,
   },
   desktopInputContainer: {
     height: 56,
-    paddingHorizontal: theme.spacing['2xl'],
+    paddingHorizontal: staticTheme.spacing['2xl'],
   },
   icon: {
-    marginRight: theme.spacing.sm,
+    marginRight: staticTheme.spacing.sm,
   },
-  input: {
+  input: { // Base styles, dynamic color applied inline
     flex: 1,
     height: '100%',
-    color: theme.colors.neutral[600], // Light colored text
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.base,
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.base,
     paddingVertical: 0,
   } as TextStyle,
   centeredInput: {
     textAlign: 'center' as const,
   } as TextStyle,
-  privateInput: {
-    color: theme.colors.neutral[700], // Even lighter text for private mode
-  } as TextStyle,
+  // privateInput removed, handled inline
   clearButton: {
-    padding: theme.spacing.xs,
+    padding: staticTheme.spacing.xs,
   },
   tabButton: {
     width: 48,
     height: 48,
-    borderRadius: theme.radius.full,
+    borderRadius: staticTheme.radius.full,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent', // Kept transparent
     position: 'relative',
   } as ViewStyle,
   tabletButton: {
@@ -248,29 +242,27 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
   } as ViewStyle,
-  tabCountBadge: {
+  tabCountBadge: { // Dynamic background and text color applied inline
     position: 'absolute',
-    top: theme.spacing.xs,
-    right: theme.spacing.xs,
-    backgroundColor: theme.colors.primary.dark,
-    borderRadius: theme.radius.full,
+    top: staticTheme.spacing.xs,
+    right: staticTheme.spacing.xs,
+    borderRadius: staticTheme.radius.full,
     minWidth: 20,
     height: 20,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    paddingHorizontal: theme.spacing.xs,
+    paddingHorizontal: staticTheme.spacing.xs,
   } as ViewStyle,
-  tabCountText: {
-    color: theme.colors.neutral[800],
-    fontSize: theme.typography.sizes.xs,
-    fontFamily: theme.typography.families.sansBold,
+  tabCountText: { // Dynamic color applied inline
+    fontSize: staticTheme.typography.sizes.xs,
+    fontFamily: staticTheme.typography.families.sansBold,
   } as TextStyle,
   menuButton: {
     width: 48,
     height: 48,
-    borderRadius: theme.radius.full,
+    borderRadius: staticTheme.radius.full,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent', // Kept transparent
   } as ViewStyle,
 });

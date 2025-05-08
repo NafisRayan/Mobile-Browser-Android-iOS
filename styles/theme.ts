@@ -3,27 +3,27 @@ export const theme = {
     // Primary Colors
     primary: {
       main: '#3b82f6', // Bright blue
-      light: '#60a5fa',
+      light: '#60a5fa', // Light blue for accents
       dark: '#2563eb',
     },
-    // Neutral Colors with Dark Blue Base
+    // Neutral Colors - Dark Theme (Black base)
     neutral: {
-      50: '#1e1e2e',  // Dark blue background
-      100: '#252538', // Light dark blue
-      200: '#2c2c42', // Borders, dividers
-      300: '#383852', // Disabled states
-      400: '#6e6e89', // Placeholder text
-      500: '#8f8fa3', // Secondary text
-      600: '#bfbfd4', // Primary text
-      700: '#dcdcec', // Headers
-      800: '#e8e8f5', // Light text
-      900: '#f8f8ff', // Brightest text
+      50: '#000000',  // Pure black background
+      100: '#111111', // Off-black
+      200: '#222222', // Borders, dividers
+      300: '#333333', // Disabled states
+      400: '#555555', // Placeholder text
+      500: '#888888', // Secondary text
+      600: '#cccccc', // Primary text
+      700: '#dddddd', // Headers
+      800: '#eeeeee', // Light text
+      900: '#ffffff', // Pure white - Brightest text & icons
     },
     // Semantic Colors
     success: '#22c55e',
     warning: '#f59e0b',
     error: '#ef4444',
-    info: '#3b82f6',
+    info: '#3b82f6', // Should this be primary.main or primary.light? Keeping main for now.
   },
 
   // Typography
@@ -67,7 +67,7 @@ export const theme = {
     full: 9999,
   },
 
-  // Shadows
+  // Shadows - Keep as is, shadow color is black, works for both themes
   shadows: {
     sm: {
       shadowColor: '#000',
@@ -92,69 +92,129 @@ export const theme = {
     },
   },
 
-  // Light Mode (now acting as alternate theme)
+  // Light Theme
+  light: {
+    colors: {
+      background: '#ffffff', // Pure white background
+      surface: '#f8fafc',   // Slightly off-white for surfaces like cards
+      text: '#000000',      // Pure black text
+      textSecondary: '#555555', // Dark gray for secondary text
+      border: '#e2e8f0',    // Light gray for borders
+      primaryAccent: '#60a5fa', // Light blue for accents
+      privateBackground: '#f0f0f0', // Very light gray for private mode in light theme
+    },
+  },
+
+  // Dark Theme (explicitly defined for clarity, though neutral serves this purpose)
   dark: {
     colors: {
-      background: '#f8fafc',
-      surface: '#ffffff',
-      text: '#1e1e2e',
-      textSecondary: '#6e6e89',
-      border: '#e2e8f0',
+      background: '#000000', // Pure black background
+      surface: '#111111',   // Off-black for surfaces
+      text: '#ffffff',      // Pure white text
+      textSecondary: '#bbbbbb', // Light gray for secondary text
+      border: '#333333',    // Dark gray for borders
+      primaryAccent: '#60a5fa', // Light blue for accents
+      privateBackground: '#0a0a0a', // Very dark gray (near black) for private mode in dark theme
     },
   },
 } as const;
 
   // Common styles that can be reused across components
-export const commonStyles = {
-  // Container styles
-  container: {
-    base: {
-      flex: 1,
-      backgroundColor: theme.colors.neutral[50], // Dark blue background
-    },
-    dark: {
-      backgroundColor: theme.dark.colors.background, // Light mode
-    },
-  },
+export const commonStyles = (isDarkMode: boolean) => {
+  const currentThemeColors = isDarkMode ? theme.dark.colors : theme.light.colors;
+  const baseNeutralColors = theme.colors.neutral; // For dark mode specific neutral shades if needed
+  const primaryColors = theme.colors.primary;
 
-  // Input styles
-  input: {
-    base: {
-      height: 48,
-      backgroundColor: theme.colors.neutral[100], // Slightly lighter dark blue
-      borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.lg,
-      fontFamily: theme.typography.families.sans,
-      fontSize: theme.typography.sizes.base,
-      color: theme.colors.neutral[700], // Light text
+  return {
+    // Add private mode specific styles here if they are common
+    privateMode: {
+      backgroundColor: currentThemeColors.privateBackground,
+      // Potentially other private mode specific styles like text color if needed
+      // privateTextColor: isDarkMode ? '#c0c0c0' : '#404040',
     },
-    dark: {
-      backgroundColor: theme.dark.colors.surface,
-      color: theme.dark.colors.text,
+    // Container styles
+    container: {
+      base: {
+        flex: 1,
+        backgroundColor: currentThemeColors.background,
+      },
     },
-    focused: {
-      backgroundColor: theme.colors.neutral[200], // Even lighter dark blue when focused
-      ...theme.shadows.md,
-    },
-    darkFocused: {
-      backgroundColor: theme.dark.colors.background,
-    },
-  },
 
-  // Button styles
-  button: {
-    base: {
-      height: 48,
-      borderRadius: theme.radius.full,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: theme.spacing.xl,
+    // Input styles
+    input: {
+      base: {
+        height: 48,
+        backgroundColor: currentThemeColors.surface,
+        borderRadius: theme.radius.full,
+        paddingHorizontal: theme.spacing.lg,
+        fontFamily: theme.typography.families.sans,
+        fontSize: theme.typography.sizes.base,
+        color: currentThemeColors.text,
+        borderColor: currentThemeColors.border,
+        borderWidth: 1,
+      },
+      focused: {
+        backgroundColor: isDarkMode ? baseNeutralColors[200] : theme.light.colors.surface, // Darker for dark, same for light
+        borderColor: primaryColors.light, // Accent color for focus
+        ...theme.shadows.sm, // Subtle shadow on focus
+      },
     },
-    primary: {
-      backgroundColor: theme.colors.primary.main,
+
+    // Button styles
+    button: {
+      base: {
+        height: 48,
+        borderRadius: theme.radius.full,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: theme.spacing.xl,
+      },
+      primary: {
+        backgroundColor: primaryColors.main,
+        // Text color for primary button should contrast with primary.main
+        // Assuming white text for primary buttons in both themes for simplicity
+        // This might need adjustment based on primary.main's brightness
+        color: theme.colors.neutral[900], // White text
+      },
+      secondary: {
+        backgroundColor: currentThemeColors.surface,
+        borderColor: currentThemeColors.border,
+        borderWidth: 1,
+        // Text color for secondary button
+        color: currentThemeColors.text,
+      },
+      accent: { // For buttons that need the light blue accent
+        backgroundColor: currentThemeColors.primaryAccent,
+        color: isDarkMode ? theme.dark.colors.text : theme.light.colors.text, // Ensure contrast
+      }
     },
-    secondary: {
-      backgroundColor: theme.colors.neutral[200], // Slightly lighter dark blue
+    // Text styles
+    text: {
+      primary: {
+        color: currentThemeColors.text,
+        fontFamily: theme.typography.families.sans,
+        fontSize: theme.typography.sizes.base,
+      },
+      secondary: {
+        color: currentThemeColors.textSecondary,
+        fontFamily: theme.typography.families.sans,
+        fontSize: theme.typography.sizes.sm,
+      },
+      header: {
+        color: currentThemeColors.text,
+        fontFamily: theme.typography.families.sansBold,
+        fontSize: theme.typography.sizes.xl,
+      },
+      accent: {
+        color: currentThemeColors.primaryAccent,
+      }
     },
-  },
+    // Icon styles
+    icon: {
+      color: currentThemeColors.text, // Default icon color
+    },
+    iconAccent: {
+      color: currentThemeColors.primaryAccent, // Light blue icon color
+    }
+  };
 };

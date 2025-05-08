@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, Alert, ViewStyle, TextStyle } from 'react-native';
-import { theme } from '@/styles/theme';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Search, Clock, Trash2, X } from 'lucide-react-native';
 import { useBrowserContext } from '@/context/BrowserContext';
@@ -23,6 +24,8 @@ export default function HistoryScreen() {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredHistory, setFilteredHistory] = useState<HistoryItem[]>([]);
 
@@ -110,10 +113,11 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={[
       styles.container,
-      isPrivateMode && styles.privateContainer
+      { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
     ]}>
       <View style={[
         styles.header,
+        { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
         responsivePadding,
         safeAreaStyles.safeAreaTop
       ]}>
@@ -122,13 +126,12 @@ export default function HistoryScreen() {
             onPress={goBack}
             style={styles.headerButton}
           >
-            <ArrowLeft size={iconSize} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+            <ArrowLeft size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
 
           <Text style={[
             styles.title,
-            isPrivateMode && styles.privateText,
-            { fontSize: getFontSize(18) }
+            { color: dynamicStyles.text.primary.color, fontSize: getFontSize(18) }
           ]}>
             History
           </Text>
@@ -137,22 +140,25 @@ export default function HistoryScreen() {
             style={styles.headerButton}
             onPress={handleClearHistory}
           >
-            <Trash2 size={iconSize} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+            <Trash2 size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.searchContainer, isPrivateMode && styles.privateSearchContainer]}>
-          <Search size={20} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+        <View style={[
+          styles.searchContainer, 
+          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
+        ]}>
+          <Search size={20} color={dynamicStyles.text.secondary.color} />
           <TextInput
-            style={[styles.searchInput, isPrivateMode && styles.privateSearchInput]}
+            style={[styles.searchInput, { color: dynamicStyles.text.primary.color }]}
             placeholder="Search history"
-            placeholderTextColor={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <X size={20} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+              <X size={20} color={dynamicStyles.text.secondary.color} />
             </TouchableOpacity>
           )}
         </View>
@@ -160,11 +166,11 @@ export default function HistoryScreen() {
 
       {history.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Clock size={48} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
-          <Text style={[styles.emptyText, isPrivateMode && styles.privateText]}>
+          <Clock size={48} color={dynamicStyles.text.secondary.color} />
+          <Text style={[styles.emptyText, { color: dynamicStyles.text.primary.color }]}>
             No browsing history
           </Text>
-          <Text style={[styles.emptySubtext, isPrivateMode && styles.privateSubtext]}>
+          <Text style={[styles.emptySubtext, { color: dynamicStyles.text.secondary.color }]}>
             {isPrivateMode 
               ? 'History is not saved in Incognito mode' 
               : 'Your browsing history will appear here'}
@@ -181,7 +187,7 @@ export default function HistoryScreen() {
           ]}
           renderItem={({ item: section }) => (
             <View style={styles.section}>
-              <Text style={[styles.sectionHeader, isPrivateMode && styles.privateText]}>
+              <Text style={[styles.sectionHeader, { color: dynamicStyles.text.secondary.color }]}>
                 {section.date}
               </Text>
               {section.data.map((item) => (
@@ -191,21 +197,21 @@ export default function HistoryScreen() {
                   onPress={() => handleItemPress(item)}
                 >
                   <View style={styles.itemContent}>
-                    <Clock size={16} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} style={styles.itemIcon} />
+                    <Clock size={16} color={dynamicStyles.text.secondary.color} style={styles.itemIcon} />
                     <View style={styles.itemTextContainer}>
                       <Text 
-                        style={[styles.itemTitle, isPrivateMode && styles.privateText]} 
+                        style={[styles.itemTitle, { color: dynamicStyles.text.primary.color }]} 
                         numberOfLines={1}
                       >
                         {item.title || item.url}
                       </Text>
                       <Text 
-                        style={[styles.itemUrl, isPrivateMode && styles.privateSubtext]} 
+                        style={[styles.itemUrl, { color: dynamicStyles.text.secondary.color }]} 
                         numberOfLines={1}
                       >
                         {item.url}
                       </Text>
-                      <Text style={[styles.itemTime, isPrivateMode && styles.privateSubtext]}>
+                      <Text style={[styles.itemTime, { color: dynamicStyles.text.secondary.color }]}>
                         {formatTime(item.timestamp)}
                       </Text>
                     </View>
@@ -214,7 +220,7 @@ export default function HistoryScreen() {
                     style={styles.removeButton}
                     onPress={() => handleRemoveItem(item.id)}
                   >
-                    <X size={16} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+                    <X size={16} color={dynamicStyles.text.secondary.color} />
                   </TouchableOpacity>
                 </TouchableOpacity>
               ))}
@@ -227,15 +233,13 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base style, background handled inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[50],
   } as ViewStyle,
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100],
-  } as ViewStyle,
+  // privateContainer removed
   header: {
     marginBottom: 8,
+    borderBottomWidth: 1, // Added border
   },
   headerTop: {
     flexDirection: 'row',
@@ -249,77 +253,62 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontFamily: theme.typography.families.sansMedium,
-    color: theme.colors.neutral[700],
+  title: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
-  privateText: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
-  searchContainer: {
+  // privateText removed
+  searchContainer: { // Base style, background handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.md,
+    borderRadius: staticTheme.radius.full,
+    paddingHorizontal: staticTheme.spacing.md,
     height: 48,
   } as ViewStyle,
-  privateSearchContainer: {
-    backgroundColor: theme.colors.neutral[200],
-  } as ViewStyle,
-  searchInput: {
+  // privateSearchContainer removed
+  searchInput: { // Base style, color handled inline
     flex: 1,
     height: 48,
-    paddingHorizontal: theme.spacing.sm,
-    fontFamily: theme.typography.families.sans,
-    color: theme.colors.neutral[700],
+    paddingHorizontal: staticTheme.spacing.sm,
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
-  privateSearchInput: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
+  // privateSearchInput removed
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-  emptyText: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.lg,
-    color: theme.colors.neutral[700],
-    marginTop: theme.spacing.lg,
+  emptyText: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.lg,
+    marginTop: staticTheme.spacing.lg,
   } as TextStyle,
-  emptySubtext: {
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[500],
-    marginTop: theme.spacing.sm,
+  emptySubtext: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.sm,
+    marginTop: staticTheme.spacing.sm,
     textAlign: 'center',
   } as TextStyle,
-  privateSubtext: {
-    color: theme.colors.neutral[400],
-  } as TextStyle,
+  // privateSubtext removed
   listContent: {
     paddingBottom: 24,
   },
   section: {
     marginBottom: 16,
   },
-  sectionHeader: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[600],
-    marginBottom: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
+  sectionHeader: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.sm,
+    marginBottom: staticTheme.spacing.sm,
+    paddingHorizontal: staticTheme.spacing.sm,
   } as TextStyle,
   historyItem: {
     flexDirection: 'row' as const,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    // Add a subtle border or background change on hover/press if needed
+    paddingVertical: staticTheme.spacing.md,
+    paddingHorizontal: staticTheme.spacing.sm,
+    borderRadius: staticTheme.radius.md,
   } as ViewStyle,
   itemContent: {
     flex: 1,
@@ -332,21 +321,18 @@ const styles = StyleSheet.create({
   itemTextContainer: {
     flex: 1,
   },
-  itemTitle: {
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[700],
+  itemTitle: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.sm,
   } as TextStyle,
-  itemUrl: {
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.xs,
-    color: theme.colors.neutral[500],
+  itemUrl: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.xs,
     marginTop: 2,
   } as TextStyle,
-  itemTime: {
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.xs,
-    color: theme.colors.neutral[500],
+  itemTime: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.xs,
     marginTop: 2,
   } as TextStyle,
   removeButton: {

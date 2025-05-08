@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ViewStyle, TextStyle, ImageStyle } from 'react-native';
-import { theme } from '@/styles/theme';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Globe, X } from 'lucide-react-native';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 
@@ -23,6 +24,8 @@ export function ChromeTabPreview({
   isPrivateMode
 }: ChromeTabPreviewProps) {
   const { isTablet, isDesktop, getIconSize, getFontSize } = useResponsiveSize();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
 
   // Format URL for display
   const displayUrl = url
@@ -41,7 +44,7 @@ export function ChromeTabPreview({
     <TouchableOpacity
       style={[
         styles.container,
-        isPrivateMode && styles.privateContainer,
+        { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor },
         isTablet && styles.tabletContainer,
         isDesktop && styles.desktopContainer
       ]}
@@ -50,20 +53,20 @@ export function ChromeTabPreview({
     >
       <View style={styles.content}>
         <TouchableOpacity
-          style={styles.closeButton}
+          style={[styles.closeButton, { backgroundColor: (isDarkMode ? staticTheme.dark.colors.surface : staticTheme.light.colors.surface) + 'AA' }]}
           onPress={onClose}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <X size={iconSize} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+          <X size={iconSize} color={dynamicStyles.icon.color} />
         </TouchableOpacity>
 
         <View style={styles.preview}>
           {/* This would be a thumbnail preview in a real implementation */}
           <View style={[
             styles.thumbnailPlaceholder,
-            isPrivateMode && styles.privateThumbnailPlaceholder
+            { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
           ]}>
-            <View style={styles.faviconOverlay}>
+            <View style={[styles.faviconOverlay, { backgroundColor: (isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor) + 'CC' }]}>
               {favicon ? (
                 <Image
                   source={{ uri: favicon }}
@@ -72,14 +75,17 @@ export function ChromeTabPreview({
               ) : (
                 <Globe
                   size={iconSize}
-                  color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]}
+                  color={dynamicStyles.text.secondary.color}
                 />
               )}
             </View>
             <Text style={[
               styles.domainText,
-              isPrivateMode && styles.privateText,
-              { fontSize: domainFontSize }
+              { 
+                color: dynamicStyles.text.primary.color, 
+                backgroundColor: (isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor) + 'CC',
+                fontSize: domainFontSize 
+              }
             ]}>
               {displayUrl}
             </Text>
@@ -89,8 +95,7 @@ export function ChromeTabPreview({
         <Text
           style={[
             styles.title,
-            isPrivateMode && styles.privateText,
-            { fontSize }
+            { color: dynamicStyles.text.primary.color, fontSize }
           ]}
           numberOfLines={1}
         >
@@ -102,38 +107,35 @@ export function ChromeTabPreview({
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base styles, dynamic background applied inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[100], // Use theme color
-    borderRadius: theme.radius.md,
+    borderRadius: staticTheme.radius.md,
     overflow: 'hidden',
-    margin: theme.spacing.xs,
-    height: 160, // Consider making this responsive if needed
-    ...theme.shadows.sm,
+    margin: staticTheme.spacing.xs,
+    height: 160, 
+    ...staticTheme.shadows.sm,
   } as ViewStyle,
-  tabletContainer: {
+  tabletContainer: { // These could also be made dynamic if needed
     borderRadius: 10,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 3,
   },
-  desktopContainer: {
+  desktopContainer: { // These could also be made dynamic if needed
     borderRadius: 12,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
   },
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[200], // Slightly lighter for private
-  } as ViewStyle,
+  // privateContainer removed
   content: {
     flex: 1,
     flexDirection: 'column',
     position: 'relative',
   },
-  closeButton: {
+  closeButton: { // Base style, dynamic background applied inline
     position: 'absolute',
     top: 4,
     right: 4,
@@ -142,60 +144,50 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 12,
-    backgroundColor: theme.colors.neutral[500] + '40', // Semi-transparent dark
     zIndex: 10,
   },
   favicon: {
     width: 16,
     height: 16,
-    borderRadius: theme.radius.sm / 2,
+    borderRadius: staticTheme.radius.sm / 2,
   } as ImageStyle,
   preview: {
     flex: 1,
   },
-  thumbnailPlaceholder: {
+  thumbnailPlaceholder: { // Base style, dynamic background applied inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[50], // Darker background for placeholder
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
     position: 'relative',
   } as ViewStyle,
-  privateThumbnailPlaceholder: {
-    backgroundColor: theme.colors.neutral[100],
-  } as ViewStyle,
-  faviconOverlay: {
+  // privateThumbnailPlaceholder removed
+  faviconOverlay: { // Base style, dynamic background applied inline
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: [{ translateX: -12 }, { translateY: -12 }],
-    backgroundColor: theme.colors.neutral[200] + 'CC', // Semi-transparent light dark
-    borderRadius: theme.radius.full,
+    borderRadius: staticTheme.radius.full,
     width: 24,
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 5,
   },
-  domainText: {
-    color: theme.colors.neutral[600],
+  domainText: { // Base style, dynamic color and background applied inline
     textAlign: 'center',
-    padding: theme.spacing.sm,
+    padding: staticTheme.spacing.sm,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: theme.colors.neutral[200] + 'CC', // Semi-transparent light dark
-    fontFamily: theme.typography.families.sans,
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
-  title: {
-    color: theme.colors.neutral[700],
-    marginHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-    marginTop: theme.spacing.xs,
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.xs, // Adjusted size
+  title: { // Base style, dynamic color applied inline
+    marginHorizontal: staticTheme.spacing.sm,
+    marginBottom: staticTheme.spacing.sm,
+    marginTop: staticTheme.spacing.xs,
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.xs, 
   } as TextStyle,
-  privateText: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
+  // privateText removed
 });

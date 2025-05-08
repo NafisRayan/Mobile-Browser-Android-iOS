@@ -9,9 +9,23 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BrowserProvider } from '@/context/BrowserContext';
 import { PrivacyProvider } from '@/context/PrivacyContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 
 // Keep the splash screen visible until fonts are loaded
 SplashScreen.preventAutoHideAsync();
+
+function AppContent() {
+  const { isDarkMode } = useTheme();
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+    </>
+  );
+}
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -39,15 +53,13 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <PrivacyProvider>
-          <BrowserProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="light" />
-          </BrowserProvider>
-        </PrivacyProvider>
+        <ThemeProvider>
+          <PrivacyProvider>
+            <BrowserProvider>
+              <AppContent />
+            </BrowserProvider>
+          </PrivacyProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, StatusBar } from 'react-native';
-import { useRouter } from 'expo-router'; // Added for navigation
-import { theme } from '@/styles/theme'; // Added theme import
+import { StyleSheet, View } from 'react-native'; // StatusBar removed
+import { useRouter } from 'expo-router';
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Import commonStyles and staticTheme
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { BrowserView } from '@/components/browser/BrowserView';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
@@ -31,7 +32,9 @@ export default function BrowserScreen() {
   const [addressBarFocused, setAddressBarFocused] = useState(false);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
   const { styles: safeAreaStyles, insets } = useSafeArea();
-  const router = useRouter(); // Added for navigation
+  const router = useRouter();
+  const { isDarkMode } = useTheme(); // Get theme status
+  const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
   useEffect(() => {
     loadInitialUrl();
@@ -70,13 +73,14 @@ export default function BrowserScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, isPrivateMode && styles.privateContainer]}
+      style={[
+        styles.container,
+        { backgroundColor: dynamicStyles.container.base.backgroundColor },
+        isPrivateMode && { backgroundColor: dynamicStyles.privateMode.backgroundColor } // Apply dynamic private background
+      ]}
       edges={['left', 'right']}
     >
-      <StatusBar
-        backgroundColor={isPrivateMode ? '#202124' : '#FFFFFF'}
-        barStyle={isPrivateMode ? 'light-content' : 'dark-content'}
-      />
+      {/* StatusBar is now handled in app/_layout.tsx */}
 
       <View style={[
         styles.browserContainer,
@@ -86,7 +90,7 @@ export default function BrowserScreen() {
         {useSideBySideLayout ? (
           // Side-by-side layout for tablets and desktops in landscape
           <>
-            <View style={styles.sidebarContainer}>
+            <View style={[styles.sidebarContainer, { borderRightColor: dynamicStyles.button.secondary.borderColor }]}>
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -175,13 +179,10 @@ export default function BrowserScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base container style, backgroundColor will be applied dynamically
     flex: 1,
-    backgroundColor: theme.colors.neutral[50], // Use theme color
   },
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100], // Use theme color
-  },
+  // privateContainer style object removed from StyleSheet as it's now fully dynamic inline
   browserContainer: {
     flex: 1,
   },
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   sidebarContainer: {
     width: 80,
     borderRightWidth: 1,
-    borderRightColor: theme.colors.neutral[200], // Use theme color
+    // borderRightColor will be set dynamically using dynamicStyles.button.secondary.borderColor
     justifyContent: 'center',
     alignItems: 'center',
   },

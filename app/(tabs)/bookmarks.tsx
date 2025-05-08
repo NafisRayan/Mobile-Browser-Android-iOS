@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, TextInput, StatusBar, Alert, ViewStyle, TextStyle } from 'react-native';
-import { theme } from '@/styles/theme';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, TextInput, Alert, ViewStyle, TextStyle } from 'react-native'; // Removed StatusBar
+import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Bookmark, Search, Plus, Trash, ExternalLink, ArrowLeft, X } from 'lucide-react-native';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
@@ -16,6 +17,8 @@ export default function BookmarksScreen() {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
 
   const [newBookmarkUrl, setNewBookmarkUrl] = useState('');
   const [newBookmarkTitle, setNewBookmarkTitle] = useState('');
@@ -53,16 +56,16 @@ export default function BookmarksScreen() {
 
   return (
     <SafeAreaView
-      style={[styles.container, isPrivateMode && styles.privateContainer]}
+      style={[
+        styles.container, 
+        { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+      ]}
     >
-      {/* StatusBar is handled by RootLayout, but keeping it here for potential specific overrides if needed */}
-      <StatusBar
-        backgroundColor={isPrivateMode ? theme.colors.neutral[100] : theme.colors.neutral[50]}
-        barStyle="light-content" // Always light for dark theme
-      />
+      {/* StatusBar is handled by RootLayout */}
 
       <View style={[
         styles.header,
+        { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border like privacy screen
         responsivePadding,
         safeAreaStyles.safeAreaTop
       ]}>
@@ -71,13 +74,12 @@ export default function BookmarksScreen() {
             onPress={goBack}
             style={styles.headerButton}
           >
-            <ArrowLeft size={iconSize} color={isPrivateMode ? theme.colors.neutral[700] : theme.colors.neutral[600]} />
+            <ArrowLeft size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
 
           <Text style={[
             styles.title,
-            isPrivateMode && styles.privateText,
-            { fontSize: getFontSize(18) }
+            { color: dynamicStyles.text.primary.color, fontSize: getFontSize(18) }
           ]}>
             Bookmarks
           </Text>
@@ -85,39 +87,61 @@ export default function BookmarksScreen() {
           <View style={styles.headerButton} />
         </View>
 
-        <View style={[styles.searchContainer, isPrivateMode && styles.privateSearchContainer]}>
-          <Search size={20} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+        <View style={[
+          styles.searchContainer, 
+          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
+        ]}>
+          <Search size={20} color={dynamicStyles.text.secondary.color} />
           <TextInput
-            style={[styles.searchInput, isPrivateMode && styles.privateSearchInput]}
+            style={[styles.searchInput, { color: dynamicStyles.text.primary.color }]}
             placeholder="Search bookmarks"
-            placeholderTextColor={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <X size={20} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
+              <X size={20} color={dynamicStyles.text.secondary.color} />
             </TouchableOpacity>
           )}
         </View>
       </View>
 
       {showAddBookmark ? (
-        <View style={[styles.addBookmarkContainer, isPrivateMode && styles.privateSection]}>
-          <Text style={[styles.addBookmarkTitle, isPrivateMode && styles.privateText]}>
+        <View style={[
+          styles.addBookmarkContainer, 
+          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
+        ]}>
+          <Text style={[styles.addBookmarkTitle, { color: dynamicStyles.text.primary.color }]}>
             Add New Bookmark
           </Text>
           <TextInput
-            style={[styles.input, isPrivateMode && styles.privateInput]}
+            style={[
+              styles.input, 
+              { 
+                backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor, // Use container bg for input bg
+                color: dynamicStyles.text.primary.color,
+                borderColor: dynamicStyles.button.secondary.borderColor, // Add border
+                borderWidth: 1
+              }
+            ]}
             placeholder="Title (optional)"
-            placeholderTextColor={theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
             value={newBookmarkTitle}
             onChangeText={setNewBookmarkTitle}
           />
           <TextInput
-            style={[styles.input, isPrivateMode && styles.privateInput]}
+            style={[
+              styles.input, 
+              { 
+                backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor, 
+                color: dynamicStyles.text.primary.color,
+                borderColor: dynamicStyles.button.secondary.borderColor,
+                borderWidth: 1
+              }
+            ]}
             placeholder="URL (e.g., example.com)"
-            placeholderTextColor={theme.colors.neutral[400]}
+            placeholderTextColor={dynamicStyles.text.secondary.color}
             value={newBookmarkUrl}
             onChangeText={setNewBookmarkUrl}
             autoCapitalize="none"
@@ -125,16 +149,24 @@ export default function BookmarksScreen() {
           />
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[
+                styles.button, 
+                styles.cancelButton, 
+                { backgroundColor: dynamicStyles.button.secondary.backgroundColor }
+              ]}
               onPress={() => setShowAddBookmark(false)}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={[styles.buttonText, { color: dynamicStyles.button.secondary.color }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.saveButton]}
+              style={[
+                styles.button, 
+                styles.saveButton, 
+                { backgroundColor: dynamicStyles.button.primary.backgroundColor }
+              ]}
               onPress={handleAddBookmark}
             >
-              <Text style={styles.saveButtonText}>Save</Text>
+              <Text style={[styles.saveButtonText, { color: dynamicStyles.button.primary.color }]}>Save</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -142,11 +174,11 @@ export default function BookmarksScreen() {
         <>
           {bookmarks.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Bookmark size={48} color={isPrivateMode ? theme.colors.neutral[500] : theme.colors.neutral[400]} />
-              <Text style={[styles.emptyText, isPrivateMode && styles.privateText]}>
+              <Bookmark size={48} color={dynamicStyles.text.secondary.color} />
+              <Text style={[styles.emptyText, { color: dynamicStyles.text.primary.color }]}>
                 No bookmarks yet
               </Text>
-              <Text style={[styles.emptySubtext, isPrivateMode && styles.privateSubtext]}>
+              <Text style={[styles.emptySubtext, { color: dynamicStyles.text.secondary.color }]}>
                 Tap the + button to add your first bookmark
               </Text>
             </View>
@@ -177,11 +209,14 @@ export default function BookmarksScreen() {
         <TouchableOpacity
           style={[
             styles.addButton,
-            { bottom: 24 + (safeAreaStyles.safeAreaBottom.paddingBottom || 0) }
+            { 
+              bottom: 24 + (safeAreaStyles.safeAreaBottom.paddingBottom || 0),
+              backgroundColor: dynamicStyles.button.primary.backgroundColor 
+            }
           ]}
           onPress={() => setShowAddBookmark(true)}
         >
-          <Plus size={24} color={theme.colors.neutral[900]} />
+          <Plus size={24} color={dynamicStyles.button.primary.color} />
         </TouchableOpacity>
       )}
     </SafeAreaView>
@@ -189,15 +224,13 @@ export default function BookmarksScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base style, background handled inline
     flex: 1,
-    backgroundColor: theme.colors.neutral[50],
   } as ViewStyle,
-  privateContainer: {
-    backgroundColor: theme.colors.neutral[100],
-  } as ViewStyle,
+  // privateContainer removed
   header: {
     marginBottom: 8,
+    borderBottomWidth: 1, // Added border like privacy screen
   },
   headerTop: {
     flexDirection: 'row',
@@ -211,105 +244,81 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontFamily: theme.typography.families.sansMedium,
-    color: theme.colors.neutral[700],
+  title: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
-  privateText: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
-  searchContainer: {
+  // privateText removed
+  searchContainer: { // Base style, background handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.md,
+    borderRadius: staticTheme.radius.full,
+    paddingHorizontal: staticTheme.spacing.md,
     height: 48,
   } as ViewStyle,
-  privateSearchContainer: {
-    backgroundColor: theme.colors.neutral[200],
-  } as ViewStyle,
-  searchInput: {
+  // privateSearchContainer removed
+  searchInput: { // Base style, color handled inline
     flex: 1,
     height: 48,
-    paddingHorizontal: theme.spacing.sm,
-    fontFamily: theme.typography.families.sans,
-    color: theme.colors.neutral[700],
+    paddingHorizontal: staticTheme.spacing.sm,
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
-  privateSearchInput: {
-    color: theme.colors.neutral[600],
-  } as TextStyle,
+  // privateSearchInput removed
   listContent: {
-    paddingBottom: 100,
+    paddingBottom: 100, // Ensure space for FAB
   },
-  addButton: {
+  addButton: { // Base style, background handled inline
     position: 'absolute',
-    right: theme.spacing['2xl'],
-    // bottom will be adjusted dynamically
+    right: staticTheme.spacing['2xl'],
     width: 56,
     height: 56,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.primary.main,
+    borderRadius: staticTheme.radius.full,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
-    ...theme.shadows.lg,
+    ...staticTheme.shadows.lg,
     zIndex: 1000,
   } as ViewStyle,
-  addBookmarkContainer: {
-    margin: theme.spacing.lg,
-    padding: theme.spacing.lg,
-    backgroundColor: theme.colors.neutral[100],
-    borderRadius: theme.radius.lg,
-    ...theme.shadows.md,
+  addBookmarkContainer: { // Base style, background handled inline
+    margin: staticTheme.spacing.lg,
+    padding: staticTheme.spacing.lg,
+    borderRadius: staticTheme.radius.lg,
+    ...staticTheme.shadows.md,
   } as ViewStyle,
-  privateSection: {
-    backgroundColor: theme.colors.neutral[200],
-  } as ViewStyle,
-  addBookmarkTitle: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.lg,
-    color: theme.colors.neutral[700],
-    marginBottom: theme.spacing.lg,
+  // privateSection removed
+  addBookmarkTitle: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.lg,
+    marginBottom: staticTheme.spacing.lg,
   } as TextStyle,
-  input: {
-    backgroundColor: theme.colors.neutral[200],
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    fontFamily: theme.typography.families.sans,
-    color: theme.colors.neutral[700],
+  input: { // Base style, background, color, border handled inline
+    borderRadius: staticTheme.radius.md,
+    padding: staticTheme.spacing.md,
+    marginBottom: staticTheme.spacing.md,
+    fontFamily: staticTheme.typography.families.sans,
   } as TextStyle,
-  privateInput: {
-    backgroundColor: theme.colors.neutral[300],
-    color: theme.colors.neutral[600],
-  } as TextStyle,
+  // privateInput removed
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 12,
   },
-  button: {
+  button: { // Base style
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cancelButton: {
-    backgroundColor: theme.colors.neutral[300],
+  cancelButton: { // Background handled inline
   } as ViewStyle,
-  saveButton: {
-    backgroundColor: theme.colors.primary.main,
+  saveButton: { // Background handled inline
   } as ViewStyle,
-  buttonText: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[600],
+  buttonText: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.sm,
   } as TextStyle,
-  saveButtonText: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[900], // Brightest text for primary button
+  saveButtonText: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.sm,
   } as TextStyle,
   emptyContainer: {
     flex: 1,
@@ -317,20 +326,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  emptyText: {
-    fontFamily: theme.typography.families.sansMedium,
-    fontSize: theme.typography.sizes.lg,
-    color: theme.colors.neutral[700],
-    marginTop: theme.spacing.lg,
+  emptyText: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sansMedium,
+    fontSize: staticTheme.typography.sizes.lg,
+    marginTop: staticTheme.spacing.lg,
   } as TextStyle,
-  emptySubtext: {
-    fontFamily: theme.typography.families.sans,
-    fontSize: theme.typography.sizes.sm,
-    color: theme.colors.neutral[500],
-    marginTop: theme.spacing.sm,
+  emptySubtext: { // Base style, color handled inline
+    fontFamily: staticTheme.typography.families.sans,
+    fontSize: staticTheme.typography.sizes.sm,
+    marginTop: staticTheme.spacing.sm,
     textAlign: 'center',
   } as TextStyle,
-  privateSubtext: {
-    color: theme.colors.neutral[400],
-  } as TextStyle,
+  // privateSubtext removed
 });

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { usePrivacyContext } from '@/context/PrivacyContext';
+import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { commonStyles } from '@/styles/theme'; // Import commonStyles
 import { useBrowserContext } from '@/context/BrowserContext';
 
 interface BrowserViewProps {
@@ -12,6 +14,8 @@ interface BrowserViewProps {
 export function BrowserView({ url, tabId }: BrowserViewProps) {
   const webViewRef = useRef<WebView>(null);
   const [currentUrl, setCurrentUrl] = useState(url);
+  const [pageTitle, setPageTitle] = useState('');
+  const [pageFavicon, setPageFavicon] = useState<string | undefined>(undefined);
 
   const {
     setCanGoBack,
@@ -30,10 +34,15 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     fingerprintProtectionEnabled,
     cookieControlEnabled
   } = usePrivacyContext();
+  const { isDarkMode } = useTheme();
+  const dynamicStyles = commonStyles(isDarkMode);
 
   useEffect(() => {
     if (url !== currentUrl) {
       setCurrentUrl(url);
+      // It's generally better to change the source prop of WebView for navigation
+      // rather than injecting JS for location change, but keeping existing logic.
+      // webViewRef.current?.loadUrl(url); // Alternative
       webViewRef.current?.injectJavaScript(`window.location.href = "${url}";`);
     }
   }, [url]);
@@ -137,6 +146,8 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     setCanGoForward(navState.canGoForward);
     setCurrentUrl(navState.url);
     setContextUrl(navState.url);
+    setPageTitle(navState.title); // Store title
+    setPageFavicon(navState.favicon); // Store favicon
 
     // Update tab info
     updateTabInfo(tabId, {
@@ -156,7 +167,10 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
   const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
 
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container, 
+      { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+    ]}>
       <WebView
         ref={webViewRef}
         source={{ uri: currentUrl || 'https://www.google.com' }}
@@ -169,9 +183,9 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
           if (currentUrl && currentUrl !== 'about:blank') {
             addHistoryItem({
               url: currentUrl,
-              title: webViewRef.current?.title || currentUrl,
+              title: pageTitle || currentUrl, // Use stored pageTitle
               timestamp: Date.now(),
-              favicon: webViewRef.current?.favicon
+              favicon: pageFavicon // Use stored pageFavicon
             });
           }
         }}
@@ -187,11 +201,13 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { // Base style, background color applied inline
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   webView: {
     flex: 1,
+    // WebView background is tricky; the content sets its own.
+    // Setting a backgroundColor here might be overridden or cause flashes.
+    // The container's background will show if web content has no bg.
   },
 });
